@@ -32,4 +32,4 @@ cqlsh:jekasstout> SELECT sujet, predicat, objet, token(sujet, predicat, objet) f
  http://example.org/s1 | http://example.org/p1 | http://example.org/o052 |                 -8739132598057725708
  http://example.org/s1 | http://example.org/p1 | http://example.org/o004 |                 -8421141122291269125
 
-SELECT * from records where token(sujet, predicat, objet) > -9215648761100528181';
+SELECT * from records where token(sujet, predicat, objet) > -9215648761100528181;
