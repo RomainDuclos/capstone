@@ -1,13 +1,11 @@
 from cassandra.cluster import Cluster
 from hdt import HDTDocument
 
-
-# Dans ce script on fait une insertion sur une primary key complexe afin de pouvoir faire des requetes avec nos tokens derrière
-
-
-
 cluster = Cluster()
 session = cluster.connect()
+
+
+# Dans ce script on fait une insertion sur une primary key complexe afin de pouvoir faire des requetes avec nos tokens derriere
 
 # Creating keyspace
 session.execute(
