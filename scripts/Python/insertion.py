@@ -26,8 +26,7 @@ session.execute(
     sujet text,
 	predicat text,
 	objet text,
-    id int,
-	PRIMARY KEY ((sujet, predicat, objet), id)
+	PRIMARY KEY ((sujet, predicat, objet))
     );
     """
 )
@@ -57,12 +56,10 @@ document = HDTDocument("tests/data/test.hdt")
 
 print(cardinality)
 
-i = 0
 
 # print("cardinality of { ?s ?p ?o }: %i" % 10)
 for triple in zip( range(cardinality), triples):
-    test = "INSERT INTO records (sujet, predicat, objet, id) VALUES (\'" + triple[1][0] + "\', \'" + triple[1][1] + "\', \'" + triple[1][2] + "\' , " + str(i) + " );"
-    i = i+1
+    test = "INSERT INTO records (sujet, predicat, objet, id) VALUES (\'" + triple[1][0] + "\', \'" + triple[1][1] + "\', \'" + triple[1][2] + "\' );"
 #    print(test)
     session.execute(test)
 
