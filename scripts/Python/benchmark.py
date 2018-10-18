@@ -35,8 +35,10 @@ for token in listToken:
     listTimers.append(end-start)
 
 # stats
-moyenne=statistics.median(listTimers)
-max = max(listTimers)
-min = min(listTimers)
-print(moyenne)
-print(max-min)
+for timer in listTimers:
+    print(timer)
+#moyenne=statistics.median(listTimers)
+#max = max(listTimers)
+#min = min(listTimers)
+#print(moyenne)
+#print(max-min)
