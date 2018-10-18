@@ -56,12 +56,16 @@ document = HDTDocument("../Data/swdf.hdt")
 
 print(cardinality)
 
-
+i=0
 # print("cardinality of { ?s ?p ?o }: %i" % 10)
 for triple in zip( range(cardinality), triples):
-    test = "INSERT INTO records (sujet, predicat, objet) VALUES (\'" + triple[1][0] + "\', \'" + triple[1][1] + "\', \'" + triple[1][2] + "\' );"
-#    print(test)
+    i = i+1
+    test = "INSERT INTO records (sujet, predicat, objet) VALUES ($$" + triple[1][0] + "$$, $$" + triple[1][1] + "$$, $$" + triple[1][2] + "$$ );"
+    print(test)
+#    if i>1:
+#        exit(1)
     session.execute(test)
+    print(i)
 
 print("done")
 #En fait ici j'ai un truc INDEX qui se rajoute, donc je tape ssur triple[1] pour aller chercher ma data
