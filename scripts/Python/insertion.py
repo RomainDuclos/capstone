@@ -48,7 +48,7 @@ session.execute(
 #)
 
 # Load an HDT file. Missing indexes are generated automatically
-document = HDTDocument("tests/data/test.hdt")
+document = HDTDocument("../Data/swdf.hdt")
 
 # Fetch all triples that matches { ?s ?p ?o }
 # Use empty strings ("") to indicates variables
@@ -59,7 +59,7 @@ print(cardinality)
 
 # print("cardinality of { ?s ?p ?o }: %i" % 10)
 for triple in zip( range(cardinality), triples):
-    test = "INSERT INTO records (sujet, predicat, objet, id) VALUES (\'" + triple[1][0] + "\', \'" + triple[1][1] + "\', \'" + triple[1][2] + "\' );"
+    test = "INSERT INTO records (sujet, predicat, objet) VALUES (\'" + triple[1][0] + "\', \'" + triple[1][1] + "\', \'" + triple[1][2] + "\' );"
 #    print(test)
     session.execute(test)
 
