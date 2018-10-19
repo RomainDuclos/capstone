@@ -10,7 +10,7 @@ session = cluster.connect()
 session.set_keyspace('jekasstout')
 
 #variables
-nbTotalLignesTheorique = 2900000
+nbTotalLignesTheorique = 1000000
 nbRange = 10000
 
 #on recupere l ensemble des triples
