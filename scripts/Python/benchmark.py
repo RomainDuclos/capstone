@@ -11,7 +11,7 @@ session.set_keyspace('jekasstout')
 
 #variables
 nbTotalLignesTheorique = 2900000
-nbRange = 2000
+nbRange = 10000
 
 #on recupere l ensemble des triples
 start = time.time()
