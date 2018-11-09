@@ -3,7 +3,7 @@ from hdt import HDTDocument
 from cassandra.policies import DCAwareRoundRobinPolicy
 
 cluster = Cluster(
-    ['172.16.134.141', '172.16.134.142', '172.16.134.143'],
+    ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
     load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
 
 session = cluster.connect()
