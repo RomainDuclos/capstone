@@ -10,7 +10,7 @@ session = cluster.connect()
 session.set_keyspace('testcluster')
 
 #variables
-nbTotalLignesTheorique = 1000000
+nbTotalLignesTheorique = 2500000
 nbRange = 10000
 nbIter = nbTotalLignesTheorique/nbRange
 listTimers = []
@@ -23,15 +23,12 @@ for i in range(nbIter):
         benchmark = "SELECT sujet, predicat, objet, token(sujet, predicat, objet) from records where token(sujet, predicat, objet) > " + str(token) + " limit " + str(nbRange) + ";"
     start = time.time()
     maRange = session.execute(benchmark)    #on recup tout
+    token = maRange[-1][-1]
     end = time.time()
     #liste des temps pour stats
     listTimers.append(end-start)
     #On va chercher le dernier token et on le charge
     # le ifelse est pour eviter que ca plante
-    if maRange:
-        token = maRange[-1][-1]
-    else:
-        break
     # print(token)
 
 

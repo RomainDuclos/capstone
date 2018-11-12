@@ -5,10 +5,10 @@ from cassandra.query import BatchStatement
 from cassandra.query import SimpleStatement
 import time
 
-# cluster = Cluster(
-#     ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
-#     load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
-cluster = Cluster()
+cluster = Cluster(
+    ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
+    load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
+# cluster = Cluster()
 
 
 session = cluster.connect()
@@ -75,6 +75,12 @@ for line in data:
         session.execute(batch)
         batch = BatchStatement()
         print("row inserted : " + str(i))
+
+#fini de vider les requests
+if(batch):
+    session.execute(batch)
+    batch = BatchStatement()
+    print("row inserted : " + str(i))
 
 
 GlobalEnd = time.time()
