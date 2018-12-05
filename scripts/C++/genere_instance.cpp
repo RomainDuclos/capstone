@@ -1,4 +1,4 @@
-/* 
+/*
    Création HDT
 */
 
@@ -22,8 +22,8 @@ int main(int argc, char const *argv[])
     // ouverture en écriture avec effacement du fichier ouvert
 	string fic = argv[1];
     ofstream fichier;
-    fichier.open(fic.c_str(), ios::out | ios::trunc);  
-    
+    fichier.open(fic.c_str(), ios::out | ios::trunc);
+
     if(fichier)
     {
  	//Remplissage
@@ -31,30 +31,30 @@ int main(int argc, char const *argv[])
     {
 
         fichier << "a " << "b " << "c" + std::to_string(i) << endl;
-            
-    }
 
+    }
+/*
      for (int i = 1; i <= nblignes; ++i)
     {
 
-        
+
         fichier << "a " << "b" + std::to_string(i) << " c"  << endl;
-        
- 
+
+
 
     }
 
     for (int i = 1; i <= nblignes; ++i)
     {
 
-        
+
         fichier << "a" + std::to_string(i) << " b " << "c"  << endl;
 
     }
 
-    
+  */  
 
- 
+
 
 		  fichier.close();
         }
@@ -62,6 +62,6 @@ int main(int argc, char const *argv[])
         {
             cerr << "Impossible d'ouvrir le fichier !" << endl;
         }
-                
+
 	return 0;
 }
