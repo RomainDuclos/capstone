@@ -4,6 +4,8 @@ from cassandra.policies import DCAwareRoundRobinPolicy
 from cassandra.query import BatchStatement
 from cassandra.query import SimpleStatement
 import time
+import datetime
+from cassandra.util import uuid_from_time, datetime_from_uuid1
 
 cluster = Cluster(
     ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
@@ -19,7 +21,7 @@ session = cluster.connect()
 # Creating keyspace
 session.execute(
     """
-    CREATE KEYSPACE IF NOT EXISTS test WITH REPLICATION = {
+    CREATE KEYSPACE IF NOT EXISTS pkspo WITH REPLICATION = {
         'class' : 'SimpleStrategy',
         'replication_factor' : 1
     }
@@ -27,7 +29,19 @@ session.execute(
 )
 
 # on switch sur le bon KEYSPACE
-session.set_keyspace('test')
+session.set_keyspace('pkspo')
+
+# session.execute(
+#     """
+#     CREATE TABLE IF NOT EXISTS records (
+#     PK timeuuid,
+#     sujet text,
+# 	predicat text,
+# 	objet text,
+# 	PRIMARY KEY ( (PK, sujet) , predicat, objet)
+#     );
+#     """
+# )
 
 session.execute(
     """
@@ -35,26 +49,10 @@ session.execute(
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY ((sujet, predicat, objet))
+	PRIMARY KEY (sujet, predicat, objet)
     );
     """
 )
-
-#session.execute(
-#	"""
-#	CREATE INDEX IF NOT EXISTS indexSujet ON testhdt.records ( KEYS (sujet) );
-#	"""
-#)
-#session.execute(
-#	"""
-#	CREATE INDEX IF NOT EXISTS indexPredicat ON testhdt.records ( KEYS (predicat) );
-#	"""
-#)
-#session.execute(
-#	"""
-#	CREATE INDEX IF NOT EXISTS indexObjet ON testhdt.records ( KEYS (objet) );
-#	"""
-#)
 
 i=0
 data = open("testdata.nt")
@@ -68,6 +66,8 @@ for line in data:
     i = i+1
     triple = line.split(' ')
     triple[2] = triple[2].rstrip()
+    # test = "INSERT INTO records (pk, sujet, predicat, objet) VALUES (" + str(uuid_from_time(datetime.datetime.now())) +" , $$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
+    # "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
     test = "INSERT INTO records (sujet, predicat, objet) VALUES ($$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
     "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
     batch.add(SimpleStatement(test))
@@ -77,10 +77,10 @@ for line in data:
         print("row inserted : " + str(i))
 
 #fini de vider les requests
-if(batch):
-    session.execute(batch)
-    batch = BatchStatement()
-    print("row inserted : " + str(i))
+# if(batch):
+#     session.execute(batch)
+#     batch = BatchStatement()
+#     print("row inserted : " + str(i))
 
 
 GlobalEnd = time.time()

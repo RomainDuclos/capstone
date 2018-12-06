@@ -4,7 +4,8 @@ import time
 cluster = Cluster(['172.16.134.144', '172.16.134.142', '172.16.134.143'])
 session = cluster.connect()
 
-session.set_keyspace('ourdataset')
+session.set_keyspace('pksujet')
+# session.set_keyspace('ourdataset')
 
 def queryComplexity(query, name):
     start = time.time()*1000
