@@ -22,7 +22,7 @@ session = cluster.connect()
 # Creating keyspace
 session.execute(
     """
-    CREATE KEYSPACE IF NOT EXISTS pkspo2m WITH REPLICATION = {
+    CREATE KEYSPACE IF NOT EXISTS pktest WITH REPLICATION = {
         'class' : 'SimpleStrategy',
         'replication_factor' : 1
     }
@@ -30,7 +30,7 @@ session.execute(
 )
 
 # on switch sur le bon KEYSPACE
-session.set_keyspace('pkspo2m')
+session.set_keyspace('pktest')
 
 ##Table with composite PK
 # session.execute(
@@ -58,7 +58,7 @@ session.execute(
 )
 
 i=0
-data = open("../Data/testdata.nt")
+data = open("../Data/testdelete.nt")
 
 insert = "BEGIN BATCH "
 
@@ -82,10 +82,10 @@ for line in data:
         print("row inserted : " + str(i))
 
 #fini de vider les requests
-# if(batch):
-#     session.execute(batch)
-#     batch = BatchStatement()
-#     print("row inserted : " + str(i))
+if(batch):
+    session.execute(batch)
+    batch = BatchStatement()
+    print("row inserted : " + str(i))
 
 GlobalEnd = time.time()
 print("temps total " + str(GlobalEnd-GlobalStart) + " " + str(i) +" lignes inserees")

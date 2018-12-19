@@ -24,7 +24,7 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
     for l in resultat:
         courant = resultat.paging_state
         # print(l)
-        if(cpt>=tailleFetch-1): #JE ssimule une interruption
+        if(cpt>=tailleFetch-1): #Je simule une interruption
             fin = time.time()
             # print(str(fin-debut) + " sec")
             # print(l)
@@ -40,7 +40,7 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
 cluster = Cluster()
 session = cluster.connect()
 
-session.set_keyspace('pkspo2m')
+session.set_keyspace('pkspo')
 
 #Le paging state permet de recuperer a partir de la prochaine page, mais ca suppose qu'on a eu le temps de lire en entier notre page sinon c'est mmort
 # Estt-ce que l'acces au paging state est temps constant, si oui combien on met de temps dans le paging state a revenir ou on etait ?
@@ -49,16 +49,18 @@ session.set_keyspace('pkspo2m')
 
 #On fait un tour, on stop, et on recommence
 query = "SELECT * FROM records"
-tailleFetch = 1000
+tailleFetch = 10000
 # statement = SimpleStatement(query, fetch_size=2000)
 statement = SimpleStatement(query, fetch_size=tailleFetch)
 
 etat = ""
 # for i in range(0,15000):
-for i in range(0,3000):
+for i in range(0,302):
     if i==0:
         etat = benchmark(statement, tailleFetch)
     else:
         etat = benchmark(statement, tailleFetch, etat)
     # if(i%100==0):
     #     print(i)
+
+#Le delete read est bon.
