@@ -49,13 +49,13 @@ session.set_keyspace('pkspo2m')
 
 #On fait un tour, on stop, et on recommence
 query = "SELECT * FROM records"
-tailleFetch = 10000
+tailleFetch = 1000
 # statement = SimpleStatement(query, fetch_size=2000)
 statement = SimpleStatement(query, fetch_size=tailleFetch)
 
 etat = ""
 # for i in range(0,15000):
-for i in range(0,600):
+for i in range(0,3000):
     if i==0:
         etat = benchmark(statement, tailleFetch)
     else:
