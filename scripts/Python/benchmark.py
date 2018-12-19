@@ -4,8 +4,11 @@ import statistics
 
 GlobalStart = time.time()
 
+## Pour se connecter au cluster, decommenter la premiere ligne. En local, la deuxieme.
 cluster = Cluster(['172.16.134.144', '172.16.134.142', '172.16.134.143'])
+# cluster = Cluster()
 session = cluster.connect()
+
 # on switch sur le bon KEYSPACE
 session.set_keyspace('testcluster')
 

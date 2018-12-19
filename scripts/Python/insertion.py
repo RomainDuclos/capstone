@@ -1,7 +1,19 @@
 from cassandra.cluster import Cluster
 from hdt import HDTDocument
+from cassandra.policies import DCAwareRoundRobinPolicy
+from cassandra.query import BatchStatement
+from cassandra.query import SimpleStatement
+import time
+import datetime
+from cassandra.util import uuid_from_time, datetime_from_uuid1
 
+## Pour se connecter au cluster, decommenter la premiere ligne. En local, la deuxieme.
+# cluster = Cluster(
+#     ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
+    # load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
 cluster = Cluster()
+
+
 session = cluster.connect()
 
 
@@ -10,7 +22,7 @@ session = cluster.connect()
 # Creating keyspace
 session.execute(
     """
-    CREATE KEYSPACE IF NOT EXISTS jekasstout WITH REPLICATION = {
+    CREATE KEYSPACE IF NOT EXISTS pkspo WITH REPLICATION = {
         'class' : 'SimpleStrategy',
         'replication_factor' : 1
     }
@@ -18,56 +30,62 @@ session.execute(
 )
 
 # on switch sur le bon KEYSPACE
-session.set_keyspace('jekasstout')
+session.set_keyspace('pkspo')
 
+##Table with composite PK
+# session.execute(
+#     """
+#     CREATE TABLE IF NOT EXISTS records (
+#     PK timeuuid,
+#     sujet text,
+# 	predicat text,
+# 	objet text,
+# 	PRIMARY KEY ( (PK, sujet) , predicat, objet)
+#     );
+#     """
+# )
+
+#Table with column family
 session.execute(
     """
     CREATE TABLE IF NOT EXISTS records (
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY ((sujet, predicat, objet))
+	PRIMARY KEY (sujet, predicat, objet)
     );
     """
 )
 
-#session.execute(
-#	"""
-#	CREATE INDEX IF NOT EXISTS indexSujet ON testhdt.records ( KEYS (sujet) );
-#	"""
-#)
-#session.execute(
-#	"""
-#	CREATE INDEX IF NOT EXISTS indexPredicat ON testhdt.records ( KEYS (predicat) );
-#	"""
-#)
-#session.execute(
-#	"""
-#	CREATE INDEX IF NOT EXISTS indexObjet ON testhdt.records ( KEYS (objet) );
-#	"""
-#)
-
-# Load an HDT file. Missing indexes are generated automatically
-document = HDTDocument("../Data/wordnet31.hdt")
-
-# Fetch all triples that matches { ?s ?p ?o }
-# Use empty strings ("") to indicates variables
-(triples, cardinality) = document.search_triples("", "", "")
-
-print(cardinality)
-
 i=0
-# print("cardinality of { ?s ?p ?o }: %i" % 10)
-for triple in zip( range(cardinality), triples):
-    i = i+1
-    test = "INSERT INTO records (sujet, predicat, objet) VALUES ($$" + triple[1][0].replace("$", "\$") + "$$, $$" + triple[1][1].replace("$", "\$") + \
-    "$$, $$" + triple[1][2].replace("$", "\$") + "$$ );"
-    print(test)
-#    if i>1:
-#        exit(1)
-    session.execute(test)
-    print(i)
+data = open("../Data/testdata.nt")
 
-print("done")
-#En fait ici j'ai un truc INDEX qui se rajoute, donc je tape ssur triple[1] pour aller chercher ma data
-# triple[0] = mon index
+insert = "BEGIN BATCH "
+
+GlobalStart = time.time()
+batch = BatchStatement()
+
+for line in data:
+    i = i+1
+    triple = line.split(' ')
+    triple[2] = triple[2].rstrip()
+    ## L'insertion qui suit est si on a un UUID
+    # test = "INSERT INTO records (pk, sujet, predicat, objet) VALUES (" + str(uuid_from_time(datetime.datetime.now())) +" , $$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
+    # "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
+    #Inssertion classique
+    test = "INSERT INTO records (sujet, predicat, objet) VALUES ($$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
+    "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
+    batch.add(SimpleStatement(test))
+    if(i%10000==0):
+        session.execute(batch)
+        batch = BatchStatement()
+        print("row inserted : " + str(i))
+
+#fini de vider les requests
+# if(batch):
+#     session.execute(batch)
+#     batch = BatchStatement()
+#     print("row inserted : " + str(i))
+
+GlobalEnd = time.time()
+print("temps total " + str(GlobalEnd-GlobalStart) + " " + str(i) +" lignes inserees")
