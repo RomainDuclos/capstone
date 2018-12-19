@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 data = open(sys.argv[1], 'r')
 
-plt.title("Temps d acces aux tokens en seconde")
-plt.xlabel('token')
-plt.ylabel('seconde')
+plt.title('Temps pour executer une requete depuis un etat donne')
+plt.xlabel('Requete')
+plt.ylabel('Temps (secondes)')
 
 x = float(0)
 
