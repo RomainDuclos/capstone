@@ -1,80 +1,60 @@
 from cassandra.cluster import Cluster
 import time
 import statistics
+from cassandra.query import SimpleStatement
 
-def count(save1):
-    i=0
-    for lines in save1:
-        i=i+1
-        # print(i)
-    print("save1 contains " + str(i) + " rows")
+def benchmark(statement,tailleFetch, ps=""):   #paging is optional
+    # print("--------------------------------------------- ")
+    ancien = ""
+    resultat = ""
+    if ps!= "":
+        # res=session.execute_async(statement, paging_state=ps)
+        tempsMarqueurDebut = time.time()
+        res=session.execute(statement, paging_state=ps)
+        tempsMarqueurFin = time.time()
+        print(str(tempsMarqueurFin-tempsMarqueurDebut) + " sec")
+    else:
+        # res=session.execute_async(statement)
+        res=session.execute(statement)
+    cpt=0
+    # resultat = res.result()
+    resultat = res
+    debut = time.time()
+    for l in resultat:
+        courant = resultat.paging_state
+        # print(l)
+        if(cpt>=tailleFetch-1): #JE ssimule une interruption
+            fin = time.time()
+            # print(str(fin-debut) + " sec")
+            return courant  #renvoie le paging state ou on a stop
+            #Il faut parcourir la page. ca je pense qu'il faut le metttre en atomique
+            # Sinon il va pas savoir ou reprendre, lui il ne peut reprendre que a la page d'apres
+            # Ceci etant dit ce nest quun parcour de liste donc si la liste ne fait pas 10 pieds de long
+            # ca va vite
+        cpt=cpt+1
 
-GlobalStart = time.time()
 
-cluster = Cluster(['172.16.134.144', '172.16.134.142', '172.16.134.143'])
+# cluster = Cluster(['172.16.134.144', '172.16.134.142', '172.16.134.143'])
+cluster = Cluster()
 session = cluster.connect()
 
 session.set_keyspace('pkspo')
 
-from cassandra.query import SimpleStatement
-query = "SELECT * FROM records limit 1000000"  # users contains 100 rows
-statement = SimpleStatement(query, fetch_size=10)
-res=session.execute_async(statement)
+#Le paging state permet de recuperer a partir de la prochaine page, mais ca suppose qu'on a eu le temps de lire en entier notre page sinon c'est mmort
+# Estt-ce que l'acces au paging state est temps constant, si oui combien on met de temps dans le paging state a revenir ou on etait ?
 
-##timer start
+#Acces temps constant ? =>
 
-##timer atteint
-resultat = res.result()
-print(resultat.paging_state)
-print(resultat)
+#On fait un tour, on stop, et on recommence
+query = "SELECT * FROM records"
+tailleFetch = 10000
+# statement = SimpleStatement(query, fetch_size=2000)
+statement = SimpleStatement(query, fetch_size=tailleFetch)
 
-cpt=0
-ancien = ""
-for l in resultat:
-    print(l)
-    courant = resultat.paging_state
-    # print(courant + " ... " + ancien)
-    # print(ancien==courant)
-    if(cpt>20):
-        break;
-    cpt = cpt +1
-    ancien = courant
-
-statement = SimpleStatement(query, fetch_size=10)
-ps = courant
-NEWRESULTAT = session.execute(statement, paging_state=ps)
-for l in NEWRESULTAT:
-    print(l)
-    courant = resultat.paging_state
-    # print(courant + " ... " + ancien)
-    # print(ancien==courant)
-    if(cpt>20):
-        break;
-    cpt = cpt +1
-    ancien = courant
-
-
-
-
-
-
-# # handler = PagedResultHandler(res)
-# print(res)
-# print(res.result())
-# # count(save0)
-# time.sleep(0.0000000000000002)
-# print("--------------------------------------------------------------------------------------------")
-# print(res)
-# save1 = res.result()
-# print(save1)
-# # count(save1)
-# time.sleep(0.0000000000000002)
-# print("--------------------------------------------------------------------------------------------")
-# print(res)
-# save2 = res.result()
-# # count(save2)
-# print(save2)
-#
-#
-
-# print("save2 contains " + str(j) + " rows")
+etat = ""
+# for i in range(0,15000):
+for i in range(0,300):
+    if i==0:
+        etat = benchmark(statement, tailleFetch)
+    else:
+        etat = benchmark(statement, tailleFetch, etat)
