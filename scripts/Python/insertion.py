@@ -22,7 +22,7 @@ session = cluster.connect()
 # Creating keyspace
 session.execute(
     """
-    CREATE KEYSPACE IF NOT EXISTS pkspo WITH REPLICATION = {
+    CREATE KEYSPACE IF NOT EXISTS pkspo2m WITH REPLICATION = {
         'class' : 'SimpleStrategy',
         'replication_factor' : 1
     }
@@ -30,7 +30,7 @@ session.execute(
 )
 
 # on switch sur le bon KEYSPACE
-session.set_keyspace('pkspo')
+session.set_keyspace('pkspo2m')
 
 ##Table with composite PK
 # session.execute(

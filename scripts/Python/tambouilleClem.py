@@ -12,7 +12,8 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
         tempsMarqueurDebut = time.time()
         res=session.execute(statement, paging_state=ps)
         tempsMarqueurFin = time.time()
-        print(str(tempsMarqueurFin-tempsMarqueurDebut) + " sec")
+        # print(str(tempsMarqueurFin-tempsMarqueurDebut) + " sec")
+        print(str(tempsMarqueurFin-tempsMarqueurDebut))
     else:
         # res=session.execute_async(statement)
         res=session.execute(statement)
@@ -26,6 +27,7 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
         if(cpt>=tailleFetch-1): #JE ssimule une interruption
             fin = time.time()
             # print(str(fin-debut) + " sec")
+            # print(l)
             return courant  #renvoie le paging state ou on a stop
             #Il faut parcourir la page. ca je pense qu'il faut le metttre en atomique
             # Sinon il va pas savoir ou reprendre, lui il ne peut reprendre que a la page d'apres
@@ -38,7 +40,7 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
 cluster = Cluster()
 session = cluster.connect()
 
-session.set_keyspace('pkspo')
+session.set_keyspace('pkspo2m')
 
 #Le paging state permet de recuperer a partir de la prochaine page, mais ca suppose qu'on a eu le temps de lire en entier notre page sinon c'est mmort
 # Estt-ce que l'acces au paging state est temps constant, si oui combien on met de temps dans le paging state a revenir ou on etait ?
@@ -53,8 +55,10 @@ statement = SimpleStatement(query, fetch_size=tailleFetch)
 
 etat = ""
 # for i in range(0,15000):
-for i in range(0,300):
+for i in range(0,600):
     if i==0:
         etat = benchmark(statement, tailleFetch)
     else:
         etat = benchmark(statement, tailleFetch, etat)
+    # if(i%100==0):
+    #     print(i)
