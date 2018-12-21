@@ -16,7 +16,7 @@ session.set_keyspace('pktest')
 #Acces temps constant ? =>
 
 #On fait un tour, on stop, et on recommence
-query = "SELECT * FROM records"
+query = "SELECT sujet, predicat, objet FROM records WHERE sujet='a'"
 tailleFetch = 7
 # statement = SimpleStatement(query, fetch_size=2000)
 statement = SimpleStatement(query, fetch_size=tailleFetch)
@@ -25,20 +25,20 @@ res = session.execute(statement)
 cpt=0
 courant = ""
 for l in res:
-    print(l)
+    #print(l)
     courant = res.paging_state
     # print(courant)
     if(cpt>=6):
         break;
     cpt = cpt+1
 
-print("---------------------------------------------------------")
-
-session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b6', 'c');")
-session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b7', 'c');")
-session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b8', 'c');")
-session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b9', 'c');")
-session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b10', 'c');")
+# print("---------------------------------------------------------")
+#
+# session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b6', 'c');")
+# session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b7', 'c');")
+# session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b8', 'c');")
+# session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b9', 'c');")
+# session.execute("INSERT INTO records (sujet, predicat, objet) VALUES ('a', 'b10', 'c');")
 # session.execute("DELETE FROM records WHERE sujet='a' and predicat='b3'")
 # session.execute("DELETE FROM records WHERE sujet='a' and predicat='b4'")
 # session.execute("DELETE FROM records WHERE sujet='a' and predicat='b5'")
@@ -48,7 +48,7 @@ cpt=0
 statement = SimpleStatement(query, fetch_size=20)
 res2 = session.execute(statement, paging_state=courant)
 for l2 in res2:
-    print(l2)
+    #print(l2)
     courant = res2.paging_state
     # print(courant)
     if(cpt>=15):

@@ -7,11 +7,11 @@ import time
 import datetime
 from cassandra.util import uuid_from_time, datetime_from_uuid1
 
-## Pour se connecter au cluster, decommenter la premiere ligne. En local, la deuxieme.
-# cluster = Cluster(
-#     ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
-    # load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
-cluster = Cluster()
+# Pour se connecter au cluster, decommenter la premiere ligne. En local, la deuxieme.
+cluster = Cluster(
+    ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
+    load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
+# cluster = Cluster()
 
 
 session = cluster.connect()
@@ -22,7 +22,7 @@ session = cluster.connect()
 # Creating keyspace
 session.execute(
     """
-    CREATE KEYSPACE IF NOT EXISTS pktest WITH REPLICATION = {
+    CREATE KEYSPACE IF NOT EXISTS pkpos WITH REPLICATION = {
         'class' : 'SimpleStrategy',
         'replication_factor' : 1
     }
@@ -30,7 +30,7 @@ session.execute(
 )
 
 # on switch sur le bon KEYSPACE
-session.set_keyspace('pktest')
+session.set_keyspace('pkpos')
 
 ##Table with composite PK
 # session.execute(
@@ -52,13 +52,13 @@ session.execute(
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY (sujet, predicat, objet)
+	PRIMARY KEY (predicat,objet,sujet)
     );
     """
 )
 
 i=0
-data = open("../Data/testdelete.nt")
+data = open("../Data/testdata.nt")
 
 insert = "BEGIN BATCH "
 

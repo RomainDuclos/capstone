@@ -36,11 +36,11 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
         cpt=cpt+1
 
 
-# cluster = Cluster(['172.16.134.144', '172.16.134.142', '172.16.134.143'])
-cluster = Cluster()
+cluster = Cluster(['172.16.134.141', '172.16.134.142', '172.16.134.143'])
+#cluster = Cluster()
 session = cluster.connect()
 
-session.set_keyspace('pkspo')
+session.set_keyspace('pkpos')
 
 #Le paging state permet de recuperer a partir de la prochaine page, mais ca suppose qu'on a eu le temps de lire en entier notre page sinon c'est mmort
 # Estt-ce que l'acces au paging state est temps constant, si oui combien on met de temps dans le paging state a revenir ou on etait ?
@@ -48,14 +48,14 @@ session.set_keyspace('pkspo')
 #Acces temps constant ? =>
 
 #On fait un tour, on stop, et on recommence
-query = "SELECT * FROM records"
-tailleFetch = 10000
+query = "SELECT sujet, predicat, objet FROM records WHERE predicat='b'"
+tailleFetch = 1000
 # statement = SimpleStatement(query, fetch_size=2000)
 statement = SimpleStatement(query, fetch_size=tailleFetch)
 
 etat = ""
 # for i in range(0,15000):
-for i in range(0,302):
+for i in range(0,3000):
     if i==0:
         etat = benchmark(statement, tailleFetch)
     else:
