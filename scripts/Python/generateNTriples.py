@@ -1,7 +1,7 @@
 import os
 import sys
 
-file = open("../Data/testdata.nt","w")
+file = open("../Data/data.nt","w")
 
 try:
     nbTriple = int(sys.argv[1])

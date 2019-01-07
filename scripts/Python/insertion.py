@@ -8,10 +8,10 @@ import datetime
 from cassandra.util import uuid_from_time, datetime_from_uuid1
 
 # Pour se connecter au cluster, decommenter la premiere ligne. En local, la deuxieme.
-cluster = Cluster(
-    ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
-    load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
-# cluster = Cluster()
+#cluster = Cluster(
+#    ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
+#    load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
+cluster = Cluster()
 
 
 session = cluster.connect()
@@ -22,7 +22,7 @@ session = cluster.connect()
 # Creating keyspace
 session.execute(
     """
-    CREATE KEYSPACE IF NOT EXISTS pkpos WITH REPLICATION = {
+    CREATE KEYSPACE IF NOT EXISTS swdf WITH REPLICATION = {
         'class' : 'SimpleStrategy',
         'replication_factor' : 1
     }
@@ -30,7 +30,7 @@ session.execute(
 )
 
 # on switch sur le bon KEYSPACE
-session.set_keyspace('pkpos')
+session.set_keyspace('swdf')
 
 ##Table with composite PK
 # session.execute(
@@ -48,17 +48,45 @@ session.set_keyspace('pkpos')
 #Table with column family
 session.execute(
     """
-    CREATE TABLE IF NOT EXISTS records (
+    CREATE TABLE IF NOT EXISTS spo (
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY (predicat,objet,sujet)
+	PRIMARY KEY (sujet,predicat)
+    );
+    """
+)
+
+session.execute(
+    """
+    CREATE TABLE IF NOT EXISTS osp (
+    sujet text,
+	predicat text,
+	objet text,
+	PRIMARY KEY (objet, sujet)
+    );
+    """
+)
+
+session.execute(
+    """
+    CREATE TABLE IF NOT EXISTS pos (
+    sujet text,
+	predicat text,
+	objet text,
+	PRIMARY KEY (predicat, objet)
     );
     """
 )
 
 i=0
-data = open("../Data/testdata.nt")
+document = HDTDocument("../Data/swdf-2017.hdt")
+
+
+# Fetch all triples that matches { ?s ?p ?o }
+# Use empty strings ("") to indicates variables
+(data, cardinality) = document.search_triples("", "", "")
+# data = open("../Data/shortdata.nt")
 
 insert = "BEGIN BATCH "
 
@@ -67,16 +95,34 @@ batch = BatchStatement()
 
 for line in data:
     i = i+1
-    triple = line.split(' ')
-    triple[2] = triple[2].rstrip()
+    triple = line
+    # triple = line.split(' ')
+    # triple[2] = triple[2].rstrip()
     ## L'insertion qui suit est si on a un UUID
     # test = "INSERT INTO records (pk, sujet, predicat, objet) VALUES (" + str(uuid_from_time(datetime.datetime.now())) +" , $$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
     # "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
     #Inssertion classique
-    test = "INSERT INTO records (sujet, predicat, objet) VALUES ($$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
+    test = "INSERT INTO spo (sujet, predicat, objet) VALUES ($$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
     "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
     batch.add(SimpleStatement(test))
-    if(i%10000==0):
+    if(i%50==0):
+        session.execute(batch)
+        batch = BatchStatement()
+        print("row inserted : " + str(i))
+    # print(test)
+
+    test = "INSERT INTO osp (sujet, predicat, objet) VALUES ($$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
+    "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
+    batch.add(SimpleStatement(test))
+    if(i%50==0):
+        session.execute(batch)
+        batch = BatchStatement()
+        print("row inserted : " + str(i))
+
+    test = "INSERT INTO pos (sujet, predicat, objet) VALUES ($$" + triple[0].replace("$", "\$") + "$$, $$" + triple[1].replace("$", "\$") + \
+    "$$, $$" + triple[2].replace("$", "\$") + "$$ );"
+    batch.add(SimpleStatement(test))
+    if(i%50==0):
         session.execute(batch)
         batch = BatchStatement()
         print("row inserted : " + str(i))
