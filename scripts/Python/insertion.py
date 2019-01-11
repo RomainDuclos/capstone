@@ -8,10 +8,10 @@ import datetime
 from cassandra.util import uuid_from_time, datetime_from_uuid1
 
 # Pour se connecter au cluster, decommenter la premiere ligne. En local, la deuxieme.
-#cluster = Cluster(
-#    ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
-#    load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
-cluster = Cluster()
+cluster = Cluster(
+   ['172.16.134.144', '172.16.134.142', '172.16.134.143'],
+   load_balancing_policy=DCAwareRoundRobinPolicy(local_dc='dc1'))
+# cluster = Cluster()
 
 
 session = cluster.connect()
@@ -52,7 +52,7 @@ session.execute(
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY (sujet,predicat)
+	PRIMARY KEY (sujet,predicat, objet)
     );
     """
 )
@@ -63,7 +63,7 @@ session.execute(
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY (objet, sujet)
+	PRIMARY KEY (objet, sujet, predicat)
     );
     """
 )
@@ -74,7 +74,7 @@ session.execute(
     sujet text,
 	predicat text,
 	objet text,
-	PRIMARY KEY (predicat, objet)
+	PRIMARY KEY (predicat, objet, sujet)
     );
     """
 )

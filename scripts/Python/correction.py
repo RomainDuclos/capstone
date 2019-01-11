@@ -23,6 +23,7 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
     debut = time.time()
     for l in resultat:
         courant = resultat.paging_state
+        # print(l)
         if(cpt>=tailleFetch-1): #Je simule une interruption
             fin = time.time()
             # print(str(fin-debut) + " sec")
@@ -33,8 +34,6 @@ def benchmark(statement,tailleFetch, ps=""):   #paging is optional
             # Ceci etant dit ce nest quun parcour de liste donc si la liste ne fait pas 10 pieds de long
             # ca va vite
         cpt=cpt+1
-        if(cpt>3):
-            exit()
 
 
 cluster = Cluster(['172.16.134.144', '172.16.134.142', '172.16.134.143'])
@@ -49,40 +48,32 @@ session.set_keyspace('swdf')
 #Acces temps constant ? =>
 
 #On fait un tour, on stop, et on recommence
-query = "SELECT sujet, predicat, objet FROM pos WHERE predicat=$$http://www.w3.org/2002/07/owl#sameAs$$"
+query = "SELECT sujet, predicat, objet FROM spo LIMIT 20"
 tailleFetch = 1
 # statement = SimpleStatement(query, fetch_size=2000)
 statement = SimpleStatement(query, fetch_size=tailleFetch)
-# res = session.execute_async(statement)
-# tmp = res.result()
-# tmp2 = iter(tmp)
-# print(type(tmp2))
-# #print(next(tmp2))
-# while tmp2.has_more_pages:
-#     #print(line)
-#     # print(tmp2.paging_state)
-#     tmp2.fetch_next_page()
-#     print(tmp2.current_rows)
-#     # # print(next(tmp2))
-#     # print(tmp2.current_rows)
-#     # if len(tmp2.current_rows)==0:
-#     #     exit()
-#     print(tmp2.has_more_pages)
-# exit()
+res = session.execute_async(statement)
+tmp = res.result()
+tmp2 = iter(tmp)
+cpt = 0
+while tmp2.has_more_pages:
+    # print(tmp2.current_rows)
+    print(str(tmp2.paging_state))
+    tmp2.fetch_next_page()
+    cpt = cpt + 1
+# print(tmp2.current_rows)
+cpt = cpt + 1
+print(cpt)
+exit()
 
 
 etat = ""
 # for i in range(0,15000):
-cpt = 0
-for i in range(0,30000):
+for i in range(0,3000):
     if i==0:
         etat = benchmark(statement, tailleFetch)
     else:
         etat = benchmark(statement, tailleFetch, etat)
-        if etat is None:
-            # print("break at ")
-            # print(i)
-            break;
     # if(i%100==0):
     #     print(i)
 
